@@ -77,7 +77,7 @@ func isFileshader(absFilepath string) bool {
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Println("Error reading file:", err)
+		fmt.Println("Error reading file '", absFilepath, "':", err)
 	}
 
 	return false
@@ -188,8 +188,8 @@ func printHelpMenu() {
 		-e <filepath(s)> <- excludes filepaths
 		-i <filepath(s)> <- includes filespaths
 		-ei <- exlcusive include. If specified, only the include filepaths will be searched
-		--help <- show help menu
-		--version <- show version
+		-help <- show help menu
+		-v <- show version
 		`)
 }
 
@@ -212,14 +212,15 @@ func isArgOption(arg string) bool {
 	return false
 }
 
-func parseArguments(context *CompileContext, args []string) {
+func parseArguments(context *CompileContext, args []string, errOut *string) bool {
+	*errOut = ""
 	basepathSet := false
 	for i := 0; i < len(args); i++ {
-		if args[i] == "--help" {
+		if args[i] == "-help" {
 			printHelpMenu()
 		}
-		if args[i] == "--version" || args[i] == "-v" {
-			fmt.Println("GLSL To SPIR-V Mass Compiler")
+		if args[i] == "-version" || args[i] == "-v" {
+			fmt.Println("GLSL To SPIR-V Mass Compiler: Version 1.0")
 		}
 		if args[i] == "-r" {
 			context.recursiveSearch = true
@@ -228,7 +229,8 @@ func parseArguments(context *CompileContext, args []string) {
 			if !basepathSet {
 				i++
 				if len(args) <= i {
-					return
+					*errOut = "'-b': expected filepath to follow command."
+					return false
 				}
 				context.baseFilepath = args[i]
 			}
@@ -236,7 +238,7 @@ func parseArguments(context *CompileContext, args []string) {
 		if args[i] == "-e" {
 			i++
 			if len(args) <= i {
-				return
+				return false
 			}
 			for isArgOption(args[i]) {
 				recursive := false
@@ -250,14 +252,16 @@ func parseArguments(context *CompileContext, args []string) {
 				context.excludeFilepaths = append(context.excludeFilepaths, tmp)
 				i++
 				if len(args) <= i {
-					return
+					*errOut = "'-e': expected filepath to follow command."
+					return false
 				}
 			}
 		}
 		if args[i] == "-i" {
 			i++
 			if len(args) <= i {
-				return
+				*errOut = "'-i': expected filepath to follow command."
+				return false
 			}
 			for isArgOption(args[i]) {
 				recursive := false
@@ -271,7 +275,7 @@ func parseArguments(context *CompileContext, args []string) {
 				context.includeFilespaths = append(context.excludeFilepaths, tmp)
 				i++
 				if len(args) <= i {
-					return
+					return false
 				}
 			}
 		}
@@ -283,36 +287,27 @@ func parseArguments(context *CompileContext, args []string) {
 	if !basepathSet {
 		context.baseFilepath, _ = os.Getwd()
 	}
+
+	return true
 }
 
 func main() {
-	/*
-		argsWithProg := os.Args
-		argsWithoutProg := os.Args[1:]
 
-		arg := os.Args[3]
-
-		fmt.Println(argsWithProg)
-		fmt.Println(argsWithoutProg)
-		fmt.Println(arg)
-
-		wd, err := os.Getwd()
-		if err != nil {
-			fmt.Println("Error getting current working directory:", err)
-			os.Exit(1)
-		}
-	*/
-	printHelpMenu()
 	args := os.Args[1:]
 
 	var context CompileContext
 	context.recursiveSearch = true
-	parseArguments(&context, args)
 
-	context.baseFilepath = "C:\\Users\\TrippR\\OneDrive\\Documents\\REPOS\\neo-chalk\\ck\\lib\\ck\\render_backend\\pipelines"
-	shadersToCompile := getShadersToCompile(&context)
+	var err string
+	if parseArguments(&context, args, &err) {
+		//context.baseFilepath = "C:\\Users\\TrippR\\OneDrive\\Documents\\REPOS\\neo-chalk\\ck\\lib\\ck\\render_backend\\pipelines"
+		shadersToCompile := getShadersToCompile(&context)
 
-	compileShaders(shadersToCompile)
+		compileShaders(shadersToCompile)
+	} else {
+		fmt.Println("Failed to parse arguments: ", err)
+		printHelpMenu()
+	}
 
 	os.Exit(0)
 }
