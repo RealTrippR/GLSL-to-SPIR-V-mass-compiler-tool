@@ -24,7 +24,6 @@ DEALINGS IN THE SOFTWARE.
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"log"
@@ -45,6 +44,7 @@ type SearchPath struct {
 type CompileContext struct {
 	recursiveSearch   bool
 	exclusiveIncude   bool
+	ignoreCache       bool
 	excludeFilepaths  []SearchPath
 	includeFilespaths []SearchPath
 	baseFilepath      string //if empty, defaults to working directory
@@ -83,24 +83,18 @@ func contains(slice []SearchPath, item string) bool {
 }
 
 func isFileshader(absFilepath string) bool {
-	file, err := os.Open(absFilepath)
+	data, err := os.ReadFile(absFilepath)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		return false
 	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
+	lines := strings.Split(string(data), "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
 		if strings.HasPrefix(line, "#version") {
-			//fmt.Println("Found version directive:", line)
 			return true
 		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		fmt.Println("Error reading file '", absFilepath, "':", err)
 	}
 
 	return false
@@ -148,7 +142,7 @@ func getShadersToCompile(context *CompileContext) []string {
 	return shadersToCompile
 }
 
-func compileShaders(shadersToCompile []string) {
+func compileShaders(shadersToCompile []string, context *CompileContext) {
 	compiledShaderCount := 0
 	failedToCompileCount := 0
 
@@ -159,7 +153,8 @@ func compileShaders(shadersToCompile []string) {
 		pathNoExt := strings.TrimSuffix(shaderPath, filepath.Ext(shaderPath))
 		finalPath := pathNoExt + ext + ".spv"
 
-		if fileExists(finalPath) {
+		/* if source is newer than compiled shader, recompile the shader */
+		if !context.ignoreCache && fileExists(finalPath) {
 			var compiledDate uint64 = getFiledateSinceEpoch(finalPath)
 			var sourceDate uint64 = getFiledateSinceEpoch(shaderPath)
 
@@ -185,7 +180,7 @@ func compileShaders(shadersToCompile []string) {
 			} else {
 			}
 		} else {
-			fmt.Printf("Compiled shader %s\n", shaderPath)
+			fmt.Printf("Compiled shader: %s\n------------\n", shaderPath)
 			compiledShaderCount++
 		}
 	}
@@ -196,7 +191,7 @@ func compileShaders(shadersToCompile []string) {
 		fmt.Printf("Failed to compile compiled %d shaders", failedToCompileCount)
 	}
 	if compiledShaderCount == 0 && failedToCompileCount == 0 {
-		fmt.Printf("All shaders are up to date.")
+		fmt.Printf("All shaders are up to date. A total of %d shaders were found.", len(shadersToCompile))
 	}
 }
 
@@ -207,6 +202,7 @@ func printHelpMenu() {
 		GLSL to SPRIV help menu:\n
 		----------------------------\n
 		-r <- recursive
+		-f <- forces compilation (ignores cache)
 		-b <filepath> <- sets base filepath
 		-e <filepath(s)> <- excludes filepaths
 		-i <filepath(s)> <- includes filespaths
@@ -218,6 +214,9 @@ func printHelpMenu() {
 
 func isArgOption(arg string) bool {
 	if arg == "-r" {
+		return true
+	}
+	if arg == "-f" {
 		return true
 	}
 	if arg == "-b" {
@@ -247,6 +246,9 @@ func parseArguments(context *CompileContext, args []string, errOut *string) bool
 		}
 		if args[i] == "-r" {
 			context.recursiveSearch = true
+		}
+		if args[i] == "-f" {
+			context.ignoreCache = true
 		}
 		if args[i] == "-b" {
 			if !basepathSet {
@@ -323,10 +325,9 @@ func main() {
 
 	var err string
 	if parseArguments(&context, args, &err) {
-		//context.baseFilepath = "C:\\Users\\TrippR\\OneDrive\\Documents\\REPOS\\neo-chalk\\ck\\lib\\ck\\render_backend\\pipelines"
 		shadersToCompile := getShadersToCompile(&context)
 
-		compileShaders(shadersToCompile)
+		compileShaders(shadersToCompile, &context)
 	} else {
 		fmt.Println("Failed to parse arguments: ", err)
 		printHelpMenu()
