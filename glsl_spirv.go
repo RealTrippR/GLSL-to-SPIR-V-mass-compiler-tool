@@ -258,6 +258,7 @@ func parseArguments(context *CompileContext, args []string, errOut *string) bool
 					return false
 				}
 				context.baseFilepath = args[i]
+				basepathSet = true
 			}
 		}
 		if args[i] == "-e" {
@@ -326,7 +327,7 @@ func main() {
 	var err string
 	if parseArguments(&context, args, &err) {
 		shadersToCompile := getShadersToCompile(&context)
-
+		fmt.Println("base:", context.baseFilepath)
 		compileShaders(shadersToCompile, &context)
 	} else {
 		fmt.Println("Failed to parse arguments: ", err)
