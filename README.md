@@ -12,11 +12,11 @@ It will scan for shaders in the cwd (and if the recursively (`-r`) flag is set a
 
 <ins> **CLI Flags** </ins>
 
-`-r` <- recursive
-`-f` <- forces compilation (ignores cache)
-`-b` <filepath> <- sets base filepath
-`-e` <filepath(s)> <- excludes filepaths
-`-i` <filepath(s)> <- includes filespaths
-`-ei` <- exlcusive include. If specified, only the include filepaths will be searched
-`-help` <- show help menu
-`-v` <- show version
+`-r` <- recursive <br>
+`-f` <- forces compilation (ignores cache) <br>
+`-b` <filepath> <- sets base filepath <br> 
+`-e` <filepath(s)> <- excludes filepaths <br>
+`-i` <filepath(s)> <- includes filespaths <br>
+`-ei` <- exlcusive include. If specified, only the include filepaths will be searched <br>
+`-help` <- show help menu <br>
+`-v` <- show version <br>
