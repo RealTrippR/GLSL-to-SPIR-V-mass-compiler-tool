@@ -15,8 +15,8 @@ It will scan for shaders in the cwd (and if the recursively (`-r`) flag is set a
 `-r` - recursive <br>
 `-f` - forces compilation (ignores cache) <br>
 `-b <filepath>` - sets base filepath <br> 
-`-e <filepath(s)>` < excludes filepaths <br>
-`-i <filepath(s)>` <- includes filespaths <br>
+`-e <filepath(s)>` - excludes filepaths <br>
+`-i <filepath(s)>` - includes filespaths <br>
 `-ei` - exlcusive include. If specified, only the include filepaths will be searched <br>
 `-help` - show help menu <br>
 `-v` - show version <br>
