@@ -1,6 +1,7 @@
 # GLSL to SPIV-V Mass Compiler Tool
 
-**Brief**
+<ins> **Brief** </ins>
+
 A simple CLI tool to compile glsl shaders quickly and efficiently.
 
 Expects glslc to be installed on your system and accessable in the system PATH.
