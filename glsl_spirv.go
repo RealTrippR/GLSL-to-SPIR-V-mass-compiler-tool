@@ -185,10 +185,10 @@ func compileShaders(shadersToCompile []string, context *CompileContext) {
 		}
 	}
 	if compiledShaderCount > 0 {
-		fmt.Printf("Successfully compiled %d shaders", compiledShaderCount)
+		fmt.Printf("Successfully compiled %d shaders\n", compiledShaderCount)
 	}
 	if failedToCompileCount > 0 {
-		fmt.Printf("Failed to compile compiled %d shaders", failedToCompileCount)
+		fmt.Printf("Failed to compile compiled %d shaders\n", failedToCompileCount)
 	}
 	if compiledShaderCount == 0 && failedToCompileCount == 0 {
 		fmt.Printf("All shaders are up to date. A total of %d shaders were found.", len(shadersToCompile))
@@ -199,8 +199,8 @@ func printHelpMenu() {
 
 	fmt.Print(
 		`
-		GLSL to SPRIV help menu:\n
-		----------------------------\n
+		GLSL to SPRIV help menu:
+		----------------------------
 		-r <- recursive
 		-f <- forces compilation (ignores cache)
 		-b <filepath> <- sets base filepath
@@ -242,7 +242,7 @@ func parseArguments(context *CompileContext, args []string, errOut *string) bool
 			printHelpMenu()
 		}
 		if args[i] == "-version" || args[i] == "-v" {
-			fmt.Println("GLSL To SPIR-V Mass Compiler: Version 1.0")
+			fmt.Println("GLSL To SPIR-V Mass Compiler: Version 1.0, 13.11.2025")
 		}
 		if args[i] == "-r" {
 			context.recursiveSearch = true
@@ -327,7 +327,7 @@ func main() {
 	var err string
 	if parseArguments(&context, args, &err) {
 		shadersToCompile := getShadersToCompile(&context)
-		fmt.Println("base:", context.baseFilepath)
+		//fmt.Println("base:", context.baseFilepath)
 		compileShaders(shadersToCompile, &context)
 	} else {
 		fmt.Println("Failed to parse arguments: ", err)

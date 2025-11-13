@@ -1,3 +1,3 @@
 go build
-glsl_spirv -f -r -b C:\Users\TrippR\OneDrive\Documents\REPOS\neo-chalk\ck\lib\ck\render_backend
+glsl_spirv  -r -b ..\..\neo-chalk\ck\lib\ck\render_backend
 pause
