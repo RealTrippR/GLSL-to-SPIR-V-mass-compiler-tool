@@ -3,3 +3,5 @@
 *.sh
 *.o
 compile.bat
+/package
+/.vscode
