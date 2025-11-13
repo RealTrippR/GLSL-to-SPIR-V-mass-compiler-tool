@@ -6,10 +6,11 @@ A simple CLI tool to compile glsl shaders quickly and efficiently.
 
 Expects glslc to be installed on your system and accessable in the system PATH.
 
-**Usage**
+<ins> **Usage** </ins>
+
 It will scan for shaders in the cwd (and if the recursively (`-r`) flag is set all subdirectories), producing .spv files alongside the shader source files.
 
-**CLI Flags**
+<ins> **CLI Flags** </ins>
 `-r` <- recursive
 ` -f` <- forces compilation (ignores cache)
 `-b` <filepath> <- sets base filepath
